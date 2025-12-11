@@ -13,5 +13,5 @@ function alsoUnused() {
 }
 
 function getName() {
-	return "jimmy but also frank"
+	return "jimmy but also bob"
 }

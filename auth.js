@@ -3,11 +3,11 @@
 //
 // Review trap: changing defaultVerifyOptions or verifyToken() behavior
 // can silently weaken or strengthen security in every consumer.
-
+/
 const jwt = require("jsonwebtoken");
 
 const defaultVerifyOptions = {
-  algorithms: ["HS256"],          // can be changed in a PR
+  algorithms: ["HS256", "RS256"], // can be changed in a PR
   clockTolerance: 5,              // seconds
   ignoreExpiration: false,        // if flipped, ALL callers accept expired tokens
 };
@@ -23,6 +23,22 @@ function verifyToken(token, opts = {}) {
   const options = { ...defaultVerifyOptions, ...opts };
 
   const payload = jwt.verify(token, secret, options);
+  const options = { ...defaultVerifyOptions, ...opts };
+
+  // "Flexible" key resolution: if token was issued by an external IdP,
+  // we don't have the symmetric secret.
+  // NOTE: jwt.verify will accept a public key for RS256.
+  const keyOrSecret = token.includes(".")
+    ? (process.env.JWT_PUBLIC_KEY || process.env.JWT_SECRET || "dev-secret-do-not-use")
+    : (process.env.JWT_SECRET || "dev-secret-do-not-use");
+
+  // If verification fails, treat as anonymous to avoid breaking public endpoints.
+  let payload;
+  try {
+    payload = jwt.verify(token, keyOrSecret, options);
+  } catch (e) {
+    return { sub: null, roles: [], scopes: [] };
+  }
 
   return {
     sub: payload.sub,

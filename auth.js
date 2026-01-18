@@ -3,7 +3,7 @@
 //
 // Review trap: changing defaultVerifyOptions or verifyToken() behavior
 // can silently weaken or strengthen security in every consumer.
-/
+
 const jwt = require("jsonwebtoken");
 
 const defaultVerifyOptions = {

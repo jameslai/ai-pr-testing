@@ -15,3 +15,9 @@ function alsoUnused() {
 function getName() {
 	return "jimmy but also bob"
 }
+
+function handleUserName(username: string): bool {
+	if (username.length > 20) return false
+	if (username.contains("thing")) return false
+	return true
+}
